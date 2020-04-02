@@ -4,7 +4,7 @@ import threading
 import time
 import glob
 from datetime import datetime as dt
-from itertools import starmap
+from os.path import basename
 
 currentDirectory = os.path.dirname(os.path.abspath(__file__)) + "\\data\\"
 tempDirectory = os.path.dirname(os.path.abspath(__file__)) + "\\temp\\"
@@ -29,12 +29,15 @@ class ImagePacker(threading.Thread):
 
 
 def packImages(files):
-
-    print(currentDirectory)
-    print(*files)
-
-    patoolib.create_archive(
-        tempDirectory + "test" + "_" + "photo" + "_" + dt.now().strftime("%Y%m%d-%H%M%S") + ".rar", (files, currentDirectory))
+    cwd = os.getcwd()
+    # debug
+    # print(currentDirectory)
+    os.chdir(currentDirectory)
+    archiveFileName = tempDirectory + "test" + "_" + "photo" + "_" + \
+        dt.now().strftime("%Y%m%d-%H%M%S") + ".rar"
+    patoolib.create_archive(archiveFileName, files, verbosity=1)
+    os.chdir(cwd)
+    return archiveFileName
 
 
 def filebrowser(constellation="", dir="", ext=""):
@@ -49,6 +52,7 @@ def filebrowser(constellation="", dir="", ext=""):
 
 def sortByNamePart(inputStr):
     # Make date part of the string being our sort key
+    # TODO it's better to filter using basename of file
     pos = inputStr.rfind("\\")
     return inputStr[pos+6:-4]
 
@@ -61,24 +65,23 @@ curConstellation = "Lyr"
 files = filebrowser(curConstellation, currentDirectory, ".fts")
 # for debug
 # print(files)
+
+# three first files from sorted list or less
 newFiles = sorted(files, key=sortByNamePart)
+filesToArchive = []
 lastIndex = 3 if len(newFiles) >= 3 else len(newFiles)
 for x in range(0, lastIndex):
     print(newFiles[x])
-    # thread = ImagePacker(packImages(currentDirectory, tempDirectory))
-    # thread.start()
-    # # show message
-    # thread.join()
+    filesToArchive.append(basename(newFiles[x]))
 
+# debug
+# print(filesToArchive)
 
 print("archiving files ... ")
-print(newFiles[0:3])
-fileNames = (' '.join(map(str, newFiles)))
-print(fileNames)
-packImages(newFiles)
+zipFileName = packImages(filesToArchive)
+print(f"files packed. zip file name: {zipFileName}")
 
-#thread = ImagePacker(starmap(packImages, newFiles))
+# thread = ImagePacker(packImages(filesToArchive))
 # thread.start()
-# # show message
+# show message
 # thread.join()
-print("files packed")
