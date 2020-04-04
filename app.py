@@ -5,9 +5,12 @@ import time
 import glob
 from datetime import datetime as dt
 from os.path import basename
+from filesender import FileUploader, send_post, getinfo
 
 currentDirectory = os.path.dirname(os.path.abspath(__file__)) + "\\data\\"
 tempDirectory = os.path.dirname(os.path.abspath(__file__)) + "\\temp\\"
+
+server = 'http://127.0.0.1:5001'
 
 
 def prepareAreas():
@@ -74,12 +77,17 @@ for x in range(0, lastIndex):
     print(newFiles[x])
     filesToArchive.append(basename(newFiles[x]))
 
+getinfo(url=server)
+
 # debug
 # print(filesToArchive)
 
 print("archiving files ... ")
 zipFileName = packImages(filesToArchive)
 print(f"files packed. zip file name: {zipFileName}")
+
+result = send_post(server, zipFileName, os.path.getsize(zipFileName))
+print(result)
 
 # thread = ImagePacker(packImages(filesToArchive))
 # thread.start()
