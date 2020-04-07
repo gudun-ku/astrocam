@@ -1,6 +1,7 @@
 # file monitoring classes to check every time interval for new files
 
 import sys
+import traceback
 import os
 import getopt
 import threading
@@ -67,7 +68,13 @@ def programLoop(imagesDirectory, areas):
     for area in areas:
         # debug
         # print(area)
-        makeJobForArea(imagesDirectory, area)
+        try:
+            makeJobForArea(imagesDirectory, area)
+        except Exception as e:
+            exc = e
+            tb_str = traceback.format_exception(
+                etype=type(exc), value=exc, tb=exc.__traceback__)
+            print(tb_str)
 
 
 def signal_handler(signum, frame):
