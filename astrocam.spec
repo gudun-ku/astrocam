@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['astrocam.py', 'constants.py', 'fileuploader.py', 'imagepacker.py'],
+a = Analysis(['astrocam.py', 'constants.py', 'environ.py', 'fileuploader.py', 'imagepacker.py'],
              pathex=['D:\\projects\\astrocam'],
              binaries=[],
              datas=[],
@@ -37,3 +37,4 @@ coll = COLLECT(exe,
                name='astrocam')
 import shutil
 shutil.copyfile('areas.txt', '{0}/astrocam/areas.txt'.format(DISTPATH))
+shutil.copyfile('config.env', '{0}/astrocam/config.env'.format(DISTPATH))

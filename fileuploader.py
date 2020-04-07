@@ -7,29 +7,44 @@ from requests.auth import HTTPBasicAuth
 import time
 import string
 import random
-from constants import SERVER, USERNAME, PASSWORD, ERROR
+from constants import ERROR
+from environ import Environ
 
 
 class FileUploader():
 
     def __init__(self, fileToUpload):
-        self.username = USERNAME
-        self.password = PASSWORD
+        ENV = Environ().get()
+        try:
+            # debug
+            # print(ENV)
+            self.username = ENV.get('SAI_USERNAME', '')
+            self.password = ENV.get('SAI_PASSWORD', '')
+            self.server = ENV.get('SAI_SERVER', '')
+
+        except Exception as e:
+            print('Error: config.env has wrong format!')
+
         self.fileToUpload = fileToUpload
+
+        # debug
+        # print("server: ", self.server)
+        # print("username: ", self.username)
+        # print("password: ", self.password)
 
     def _random_string(self, length):
         return ''.join(random.choice(string.ascii_letters) for ii in range(length + 1))
 
     # for test test server
     def _getinfo(self, url):
-        auth = HTTPBasicAuth(username, password)
+        auth = HTTPBasicAuth(self.username, self.password)
         response = requests.get(
             url=url + "/test_is_protected", auth=auth)
         print(response.status_code)
 
     def _send_post(self, url, filepath, filesize):
 
-        auth = HTTPBasicAuth(USERNAME, PASSWORD)
+        auth = HTTPBasicAuth(self.username, self.password)
 
         # debug
         # print(filepath)
@@ -50,5 +65,5 @@ class FileUploader():
             return ERROR
 
     def uploadFile(self):
-        return self._send_post(url=SERVER, filepath=self.fileToUpload,
+        return self._send_post(url=self.server, filepath=self.fileToUpload,
                                filesize=os.path.getsize(self.fileToUpload))

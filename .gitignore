@@ -4,5 +4,6 @@ temp
 constants.py
 __pycache__
 _cli.txt
+config.env
 build
 dist

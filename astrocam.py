@@ -13,6 +13,7 @@ from constants import EMPTY, ERROR
 from datetime import timedelta
 from imagepacker import ImagePacker
 from fileuploader import FileUploader
+from environ import Environ
 
 MIN_INTERVAL = 15
 
@@ -132,6 +133,25 @@ def main(argv):
     interval = 180  # seconds
     count = 3  # count in series
     directory = ''  # camera directory
+
+    ENV = Environ().get()
+
+    try:
+        # debug
+        # print(ENV)
+        interval = int(ENV.get('SAI_INTERVAL', interval))  # seconds
+        count = int(ENV.get('SAI_COUNT', count))  # count in series
+        directory = ENV.get('SAI_CAMERA_DIRECTORY',
+                            directory)  # camera directory
+
+    except Exception as e:
+        print('Error: config.env has wrong format!')
+        # debug
+        # exc = e
+        # tb_str = traceback.format_exception(
+        #     etype=type(exc), value=exc, tb=exc.__traceback__)
+        # print(tb_str)
+        sys.exit(2)
 
     try:
         opts, args = getopt.getopt(
