@@ -9,15 +9,14 @@ from constants import EMPTY, ERROR
 
 CURRENT_DIR = os.path.dirname(
     os.path.abspath(__file__)) + "\\data\\"
-TEMP_DIR = os.path.dirname(
-    os.path.abspath(__file__)) + "\\temp\\"
 
 
 class ImagePacker():
 
     def __init__(self, imagesDirectory, area):
         self.currentDirectory = CURRENT_DIR if imagesDirectory == "" else imagesDirectory
-        self.tempDirectory = TEMP_DIR
+        self.tempDirectory = os.path.dirname(
+            os.path.abspath(__file__)) + "\\temp\\"
         self.area = area
 
     def _filebrowser(self, constellation="", dir="", ext=""):

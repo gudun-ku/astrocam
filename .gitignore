@@ -4,3 +4,5 @@ temp
 constants.py
 __pycache__
 _cli.txt
+build
+dist

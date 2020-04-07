@@ -7,6 +7,7 @@ import getopt
 import threading
 import time
 import signal
+import glob
 from constants import EMPTY, ERROR
 
 from datetime import timedelta
@@ -63,7 +64,34 @@ def makeJobForArea(imagesDirectory, area):
         print(f"Error deleting file after uploading: {res}!")
 
 
-def programLoop(imagesDirectory, areas):
+def makeJobForArchive(archiveFile):
+    uploader = FileUploader(archiveFile)
+    res = uploader.uploadFile()
+    if res != None:
+        print(f"Error uploading file: {res}!")
+        return
+
+    res = deleteFile(archiveFile)
+    if res != None:
+        print(f"Error deleting file after uploading: {res}!")
+
+
+def makeJobForArchives(tempDirectory):
+    archiveFiles = [f for f in glob.glob(f"{tempDirectory}*rar")]
+    for archiveFile in archiveFiles:
+        print("found archive file: ", archiveFile)
+        try:
+            makeJobForArchive(archiveFile)
+        except Exception as e:
+            exc = e
+            tb_str = traceback.format_exception(
+                etype=type(exc), value=exc, tb=exc.__traceback__)
+            print(tb_str)
+
+
+def programLoop(imagesDirectory, tempDirectory, areas):
+    print("Checking temp folder ... ", time.ctime())
+    makeJobForArchives(tempDirectory)
     print("Checking camera folder ... ", time.ctime())
     for area in areas:
         # debug
@@ -140,7 +168,7 @@ def main(argv):
     scanInterval = interval if interval >= MIN_INTERVAL else MIN_INTERVAL
 
     job = Job(interval=timedelta(seconds=scanInterval),
-              execute=programLoop, imagesDirectory=directory, areas=prepareAreas())
+              execute=programLoop, imagesDirectory=directory, tempDirectory=tempdirectory, areas=prepareAreas())
     job.start()
 
     while True:
