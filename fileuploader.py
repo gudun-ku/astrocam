@@ -41,9 +41,10 @@ class FileUploader():
 
         # debug
         #logging.debug('Code: %s %s', response.status, response.reason)
-        print(response)
+        # print(response)
 
         if response.ok:
+            print("File uploaded to server: ", basename(filepath))
             return None
         else:
             return ERROR

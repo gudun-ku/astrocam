@@ -121,6 +121,13 @@ def main(argv):
     print('count is :"', count)
     print('camera directory is :"', directory)
 
+    tempdirectory = os.path.dirname(
+        os.path.abspath(__file__)) + "\\temp\\"
+    if not os.path.exists(tempdirectory):
+        os.makedirs(tempdirectory)
+
+    print('temp directory is :"', tempdirectory)
+
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
     scanInterval = interval if interval >= MIN_INTERVAL else MIN_INTERVAL

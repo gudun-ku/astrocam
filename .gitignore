@@ -3,3 +3,4 @@ temp
 *.rar
 constants.py
 __pycache__
+_cli.txt
