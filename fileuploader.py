@@ -56,12 +56,12 @@ class FileUploader():
 
         # debug
         #logging.debug('Code: %s %s', response.status, response.reason)
-        # print(response)
 
         if response.ok:
             print("File uploaded to server: ", basename(filepath))
             return None
         else:
+            print("Error in response: ", response)
             return ERROR
 
     def uploadFile(self):

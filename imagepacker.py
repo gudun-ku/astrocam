@@ -6,6 +6,7 @@ import glob
 from datetime import datetime as dt
 from os.path import basename
 from constants import EMPTY, ERROR
+from environ import Environ
 
 CURRENT_DIR = os.path.dirname(
     os.path.abspath(__file__)) + "\\data\\"
@@ -14,6 +15,16 @@ CURRENT_DIR = os.path.dirname(
 class ImagePacker():
 
     def __init__(self, imagesDirectory, area):
+
+        self.prefix = ''
+        ENV = Environ().get()
+        try:
+            # debug
+            # print(ENV)
+            self.prefix = ENV.get('SAI_PREFIX', '')
+        except Exception as e:
+            print('Error: config.env has wrong format!')
+
         self.currentDirectory = CURRENT_DIR if imagesDirectory == "" else imagesDirectory
         self.tempDirectory = os.path.dirname(
             os.path.abspath(__file__)) + "\\temp\\"
@@ -77,7 +88,7 @@ class ImagePacker():
         if len(files) == 0:
             return EMPTY
         os.chdir(self.currentDirectory)
-        archiveFileName = self.tempDirectory + "test" + "_" + "photo" + "_" + area + "_" + \
+        archiveFileName = self.tempDirectory + self.prefix + "photo" + "_" + area + "_" + \
             dt.now().strftime("%Y%m%d-%H%M%S") + ".rar"
         patoolib.create_archive(archiveFileName, files, verbosity=1)
         resp = patoolib.test_archive(archiveFileName, verbosity=1)
