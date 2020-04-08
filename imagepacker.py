@@ -34,7 +34,7 @@ class ImagePacker():
         "Returns files with an extension"
         # debug
         # print(f"{dir}{constellation}*{ext}")
-        return [f for f in glob.glob(f"{dir}{constellation}*{ext}")]
+        return [f for f in glob.glob(dir+constellation+"*"+ext)]
 
     # get files array, sort it by file time in file name
     # custom sort function
@@ -71,7 +71,7 @@ class ImagePacker():
                 os.remove(files[f])
             except OSError:
                 deletingError = True
-                print(f"can't delete file: {files[f]}!")
+                print("Error, can't delete file: ", files[f])
                 pass
 
         if deletingError:

@@ -30,7 +30,7 @@ def deleteFile(file):
         os.remove(file)
         return None
     except OSError:
-        print(f"Error deleting file: {file}")
+        print("Error deleting file: ", file)
         return ERROR
 
 
@@ -57,28 +57,28 @@ def makeJobForArea(imagesDirectory, area):
     uploader = FileUploader(archiveFile)
     res = uploader.uploadFile()
     if res != None:
-        print(f"Error uploading file: {res}!")
+        print("Error uploading file: ", res)
         return
 
     res = deleteFile(archiveFile)
     if res != None:
-        print(f"Error deleting file after uploading: {res}!")
+        print("Error deleting file after uploading: ", res)
 
 
 def makeJobForArchive(archiveFile):
     uploader = FileUploader(archiveFile)
     res = uploader.uploadFile()
     if res != None:
-        print(f"Error uploading file: {res}!")
+        print("Error uploading file: ", res)
         return
 
     res = deleteFile(archiveFile)
     if res != None:
-        print(f"Error deleting file after uploading: {res}!")
+        print("Error deleting file after uploading: ", res)
 
 
 def makeJobForArchives(tempDirectory):
-    archiveFiles = [f for f in glob.glob(f"{tempDirectory}*rar")]
+    archiveFiles = [f for f in glob.glob(tempDirectory+"*rar")]
     for archiveFile in archiveFiles:
         print("found archive file: ", archiveFile)
         try:
