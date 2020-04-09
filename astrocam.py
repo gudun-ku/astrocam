@@ -36,34 +36,6 @@ def deleteFile(file):
 
 class ProgramKilled(Exception):
     pass
-# main loop for execution
-
-
-def makeJobForArea(imagesDirectory, area):
-    packer = ImagePacker(imagesDirectory, area)
-    archiveFile = packer.packImagesForArea(area)
-    if archiveFile == ERROR:
-        print("Error in archiving files!")
-        return
-
-    if archiveFile == EMPTY:
-        # debug
-        # print("No new files, skipping... ")
-        return
-
-    # debug
-    print(archiveFile)
-
-    uploader = FileUploader(archiveFile)
-    res = uploader.uploadFile()
-    if res != None:
-        print("Error uploading file: ", res)
-        return
-
-    res = deleteFile(archiveFile)
-    if res != None:
-        print("Error deleting file after uploading: ", res)
-
 
 def makeJobForArchive(archiveFile):
     uploader = FileUploader(archiveFile)
@@ -89,8 +61,24 @@ def makeJobForArchives(tempDirectory):
                 etype=type(exc), value=exc, tb=exc.__traceback__)
             print(tb_str)
 
+def makeJobForArea(imagesDirectory, processedDirectory, area):
+    packer = ImagePacker(imagesDirectory,processedDirectory, area)
+    archiveFile = packer.packImagesForArea(area)
+    if archiveFile == ERROR:
+        print("Error in archiving files!")
+        return
 
-def programLoop(imagesDirectory, tempDirectory, areas):
+    if archiveFile == EMPTY:
+        # debug
+        # print("No new files, skipping... ")
+        return
+
+    # debug
+    print("Prepared archive file: ", archiveFile)
+    makeJobForArchive(archiveFile)                
+
+# main loop for execution
+def programLoop(imagesDirectory, processedDirectory, tempDirectory, areas):
     print("Checking temp folder ... ", time.ctime())
     makeJobForArchives(tempDirectory)
     print("Checking camera folder ... ", time.ctime())
@@ -98,7 +86,7 @@ def programLoop(imagesDirectory, tempDirectory, areas):
         # debug
         # print(area)
         try:
-            makeJobForArea(imagesDirectory, area)
+            makeJobForArea(imagesDirectory,processedDirectory,area)
         except Exception as e:
             exc = e
             tb_str = traceback.format_exception(
@@ -133,6 +121,7 @@ def main(argv):
     interval = 180  # seconds
     count = 3  # count in series
     directory = ''  # camera directory
+    processedDirectory = ''  # processed directory
 
     ENV = Environ().get()
 
@@ -143,6 +132,8 @@ def main(argv):
         count = int(ENV.get('SAI_COUNT', count))  # count in series
         directory = ENV.get('SAI_CAMERA_DIRECTORY',
                             directory)  # camera directory
+        processedDirectory = ENV.get('SAI_PROCESSED_DIRECTORY',
+                            processedDirectory)  # processed directory
 
     except Exception as e:
         print('Error: config.env has wrong format!')
@@ -171,11 +162,13 @@ def main(argv):
         elif opt in ("-d", "--directory"):
             directory = arg
 
-    print('================================== BEGIN TO WORK =====================================')
+    print('============================== BEGIN TO WORK ============================')
     print('interval is :"', interval)
     print('count is :"', count)
     print('camera directory is :"', directory)
-
+    print('processed directory is:"', processedDirectory)
+    
+    
     # for freeze
     if getattr(sys, 'frozen', False):
     # frozen
@@ -196,7 +189,7 @@ def main(argv):
     scanInterval = interval if interval >= MIN_INTERVAL else MIN_INTERVAL
 
     job = Job(interval=timedelta(seconds=scanInterval),
-              execute=programLoop, imagesDirectory=directory, tempDirectory=tempdirectory, areas=prepareAreas())
+              execute=programLoop, imagesDirectory=directory, processedDirectory=processedDirectory, tempDirectory=tempdirectory, areas=prepareAreas())
     job.start()
 
     while True:
