@@ -1,4 +1,6 @@
+import sys
 import patoolib
+import patoolib.programs.rar
 import os
 import threading
 import time
@@ -26,8 +28,16 @@ class ImagePacker():
             print('Error: config.env has wrong format!')
 
         self.currentDirectory = CURRENT_DIR if imagesDirectory == "" else imagesDirectory
-        self.tempDirectory = os.path.dirname(
-            os.path.abspath(__file__)) + "\\temp\\"
+
+        # for freeze
+        if getattr(sys, 'frozen', False):
+            # frozen
+            dir_ = os.path.dirname(sys.executable)
+        else:
+            # unfrozen
+            dir_ = os.path.dirname(os.path.realpath(__file__))
+
+        self.tempDirectory = dir_ + "\\temp\\"
         self.area = area
 
     def _filebrowser(self, constellation="", dir="", ext=""):

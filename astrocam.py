@@ -176,8 +176,16 @@ def main(argv):
     print('count is :"', count)
     print('camera directory is :"', directory)
 
-    tempdirectory = os.path.dirname(
-        os.path.abspath(__file__)) + "\\temp\\"
+    # for freeze
+    if getattr(sys, 'frozen', False):
+    # frozen
+        dir_ = os.path.dirname(sys.executable)
+    else:
+    # unfrozen
+        dir_ = os.path.dirname(os.path.realpath(__file__))
+        
+    tempdirectory = dir_ + "\\temp\\"
+        
     if not os.path.exists(tempdirectory):
         os.makedirs(tempdirectory)
 

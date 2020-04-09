@@ -2,6 +2,7 @@ import os
 from os.path import basename
 import logging
 import requests
+from multiprocessing import Queue
 from requests.api import sessions
 from requests.auth import HTTPBasicAuth
 import time
