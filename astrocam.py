@@ -37,7 +37,6 @@ def deleteFile(file):
 class ProgramKilled(Exception):
     pass
 
-
 def makeJobForArchive(archiveFile):
     uploader = FileUploader(archiveFile)
     res = uploader.uploadFile()
@@ -62,9 +61,8 @@ def makeJobForArchives(tempDirectory):
                 etype=type(exc), value=exc, tb=exc.__traceback__)
             print(tb_str)
 
-
 def makeJobForArea(imagesDirectory, processedDirectory, area):
-    packer = ImagePacker(imagesDirectory, processedDirectory, area)
+    packer = ImagePacker(imagesDirectory,processedDirectory, area)
     archiveFile = packer.packImagesForArea(area)
     if archiveFile == ERROR:
         print("Error in archiving files!")
@@ -77,11 +75,9 @@ def makeJobForArea(imagesDirectory, processedDirectory, area):
 
     # debug
     print("Prepared archive file: ", archiveFile)
-    makeJobForArchive(archiveFile)
+    makeJobForArchive(archiveFile)                
 
 # main loop for execution
-
-
 def programLoop(imagesDirectory, processedDirectory, tempDirectory, areas):
     print("Checking temp folder ... ", time.ctime())
     makeJobForArchives(tempDirectory)
@@ -90,7 +86,7 @@ def programLoop(imagesDirectory, processedDirectory, tempDirectory, areas):
         # debug
         # print(area)
         try:
-            makeJobForArea(imagesDirectory, processedDirectory, area)
+            makeJobForArea(imagesDirectory,processedDirectory,area)
         except Exception as e:
             exc = e
             tb_str = traceback.format_exception(
@@ -137,7 +133,7 @@ def main(argv):
         directory = ENV.get('SAI_CAMERA_DIRECTORY',
                             directory)  # camera directory
         processedDirectory = ENV.get('SAI_PROCESSED_DIRECTORY',
-                                     processedDirectory)  # processed directory
+                            processedDirectory)  # processed directory
 
     except Exception as e:
         print('Error: config.env has wrong format!')
@@ -171,17 +167,18 @@ def main(argv):
     print('count is :"', count)
     print('camera directory is :"', directory)
     print('processed directory is:"', processedDirectory)
-
+    
+    
     # for freeze
     if getattr(sys, 'frozen', False):
-        # frozen
+    # frozen
         dir_ = os.path.dirname(sys.executable)
     else:
-        # unfrozen
+    # unfrozen
         dir_ = os.path.dirname(os.path.realpath(__file__))
-
+        
     tempdirectory = dir_ + "\\temp\\"
-
+        
     if not os.path.exists(tempdirectory):
         os.makedirs(tempdirectory)
 

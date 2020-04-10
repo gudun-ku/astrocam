@@ -46,22 +46,40 @@ class FileUploader():
     def _send_post(self, url, filepath, filesize):
 
         auth = HTTPBasicAuth(self.username, self.password)
+        filename = basename(filepath)
 
         # debug
         # print(filepath)
+        # print(filename)
 
-        file_ = {'file': (basename(filepath), open(
-            filepath, 'rb'), 'application/x-rar-compressed')}
-        #response = requests.post(url, files=file_, headers=headers, auth=auth)
-        response = requests.post(url, files=file_, auth=auth)
+        # print("Login to server... ")
+        # response = requests.get(url, auth=auth)
+        # debug
+        # print("Server response is: ", response.status_code, response.reason, response.text)
+        # print("Server response headers are: ", response.headers)
+        # if not response.ok:
+        #     print("Can't login to server: ", url)
+        #     return None
+        #
+        # debug
+        # print("Login ok!")
+
+        file = {'file': open(filepath, 'rb')}
+        # debug
+        print("Posting file to server: ", basename(filepath))
+        response = requests.post(url, files=file, auth=auth)
 
         # debug
-        #logging.debug('Code: %s %s', response.status, response.reason)
+        # print("Server response is: ", response.status_code, response.reason, response.text)
+        # print("Server response headers are: ", response.headers)
 
         if response.ok:
             print("File uploaded to server: ", basename(filepath))
             return None
         else:
+            # debug
+            print("Server response is: ", response.status_code, response.reason, response.text)
+            print("Server response headers are: ", response.headers)
             print("Error in response: ", response)
             return ERROR
 

@@ -9,7 +9,7 @@ base = None
 executables = [Executable("astrocam.py", base=base)]
 
 packages = ["patool"]
-buildOptions = dict(excludes=["tkinter"], includes=["idna.idnadata"],optimize=1)
+buildOptions = dict(excludes=["tkinter"], includes=["idna.idnadata", "lockfile"],optimize=1)
 setup(
     name = "astrocam",
     version = "0.1",

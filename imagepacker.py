@@ -3,9 +3,9 @@ import patoolib
 import patoolib.programs.rar
 import shutil
 import os
-import threading
 import time
 import glob
+from lockfile import LockFile
 from datetime import datetime as dt
 from os.path import basename
 from constants import EMPTY, ERROR
@@ -24,26 +24,25 @@ class ImagePacker():
             # debug
             # print(ENV)
             self.prefix = ENV.get('SAI_PREFIX', '')
-            self.postfix = ENV.get('SAI_POSTFIX', '')
+            self.postfix= ENV.get('SAI_POSTFIX', '')
             self.counter = int(ENV.get('SAI_COUNT', 3))
         except Exception as e:
-            print('Error: config.env has wrong format!')
+            print('Error: config.env has wrong format!')        
 
         # for freeze
         if getattr(sys, 'frozen', False):
-            # frozen
+        # frozen
             dir_ = os.path.dirname(sys.executable)
         else:
-            # unfrozen
+        # unfrozen
             dir_ = os.path.dirname(os.path.realpath(__file__))
-
+            
         self.tempDirectory = dir_ + "\\temp\\"
-        self.currentDirectory = dir_ + \
-            "\\data\\" if imagesDirectory == "" else imagesDirectory
-        self.processedDirectory = dir_ + \
-            "\\processed\\" if processedDirectory == "" else processedDirectory
-
+        self.currentDirectory = dir_ + "\\data\\" if imagesDirectory == "" else imagesDirectory
+        self.processedDirectory = dir_ + "\\processed\\" if processedDirectory == "" else processedDirectory
+    
         self.area = area
+        
 
     def _filebrowser(self, constellation="", dir="", ext=""):
         "Returns files with an extension"
@@ -71,9 +70,15 @@ class ImagePacker():
         newFiles = sorted(files, key=self._sortByNamePart)
         filesToArchive = []
         filesToDelete = []
-
+        
         lastIndex = self.counter if len(newFiles) >= self.counter else 0
         for x in range(0, lastIndex):
+            # debug
+            lock = LockFile(newFiles[x])
+            if lock.is_locked():
+                filesToArchive = []
+                filesToDelete = []
+                break
             print(newFiles[x])
             filesToArchive.append(basename(newFiles[x]))
             filesToDelete.append(newFiles[x])
@@ -97,17 +102,25 @@ class ImagePacker():
 
     def _moveImages(self, files):
         movingError = False
+        deletingError = False
         for f in range(0, len(files)):
             # if file already exists, do not move
-            if not os.path.isfile(self.processedDirectory + basename(files[f])):
-                try:
+            if not os.path.isfile(self.processedDirectory + basename(files[f])):       
+                try:                
                     shutil.move(files[f], self.processedDirectory)
                 except OSError:
                     movingError = True
                     print("Error, can't move file: ", files[f])
                     pass
+            else:
+                try:
+                    os.remove(files[f])
+                except OSError:
+                    deletingError = True
+                    print("Error, can't delete file: ", files[f])
+                    pass                
 
-        if movingError:
+        if movingError or deletingError:
             return ERROR
         else:
             return None
@@ -121,11 +134,11 @@ class ImagePacker():
         if len(files) == 0:
             return EMPTY
         os.chdir(self.currentDirectory)
-
-        archiveFileName = self.tempDirectory + \
+        
+        archiveFileName = self.tempDirectory  + \
             dt.now().strftime("%Y-%m-%d") + "_" + self.prefix + area + "_" + \
             dt.now().strftime("%H%M%S") + self.postfix + ".rar"
-
+        
         patoolib.create_archive(archiveFileName, files, verbosity=1)
         resp = patoolib.test_archive(archiveFileName, verbosity=1)
 
@@ -133,7 +146,7 @@ class ImagePacker():
         # print(resp)
         if resp == ERROR:
             print(resp)
-
+            
         os.chdir(cwd)
 
         resd = self._moveImages(filesToDelete)
