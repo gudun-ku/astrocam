@@ -24,27 +24,26 @@ class ImagePacker():
             # debug
             # print(ENV)
             self.prefix = ENV.get('SAI_PREFIX', '')
-            self.postfix= ENV.get('SAI_POSTFIX', '')
+            self.postfix = ENV.get('SAI_POSTFIX', '')
             self.counter = int(ENV.get('SAI_COUNT', 3))
         except Exception as e:
             print('Error: config.env has wrong format!')
 
-        self.currentDirectory = CURRENT_DIR if imagesDirectory == "" else imagesDirectory
-
         # for freeze
         if getattr(sys, 'frozen', False):
-        # frozen
+            # frozen
             dir_ = os.path.dirname(sys.executable)
         else:
-        # unfrozen
+            # unfrozen
             dir_ = os.path.dirname(os.path.realpath(__file__))
-            
+
         self.tempDirectory = dir_ + "\\temp\\"
-        self.currentDirectory = dir_ + "\\data\\" if imagesDirectory == "" else imagesDirectory
-        self.processedDirectory = dir_ + "\\processed\\" if processedDirectory == "" else processedDirectory
-    
+        self.currentDirectory = dir_ + \
+            "\\data\\" if imagesDirectory == "" else imagesDirectory
+        self.processedDirectory = dir_ + \
+            "\\processed\\" if processedDirectory == "" else processedDirectory
+
         self.area = area
-        
 
     def _filebrowser(self, constellation="", dir="", ext=""):
         "Returns files with an extension"
@@ -72,7 +71,7 @@ class ImagePacker():
         newFiles = sorted(files, key=self._sortByNamePart)
         filesToArchive = []
         filesToDelete = []
-        
+
         lastIndex = self.counter if len(newFiles) >= self.counter else 0
         for x in range(0, lastIndex):
             print(newFiles[x])
@@ -100,8 +99,8 @@ class ImagePacker():
         movingError = False
         for f in range(0, len(files)):
             # if file already exists, do not move
-            if not os.path.isfile(self.processedDirectory + basename(files[f])):       
-                try:                
+            if not os.path.isfile(self.processedDirectory + basename(files[f])):
+                try:
                     shutil.move(files[f], self.processedDirectory)
                 except OSError:
                     movingError = True
@@ -122,8 +121,11 @@ class ImagePacker():
         if len(files) == 0:
             return EMPTY
         os.chdir(self.currentDirectory)
-        archiveFileName = self.tempDirectory + area + "_" + \
-            dt.now().strftime("%Y%m%d-%H%M%S") + self.postfix + ".rar"
+
+        archiveFileName = self.tempDirectory + \
+            dt.now().strftime("%Y-%m-%d") + "_" + self.prefix + area + "_" + \
+            dt.now().strftime("%H%M%S") + self.postfix + ".rar"
+
         patoolib.create_archive(archiveFileName, files, verbosity=1)
         resp = patoolib.test_archive(archiveFileName, verbosity=1)
 
@@ -131,7 +133,7 @@ class ImagePacker():
         # print(resp)
         if resp == ERROR:
             print(resp)
-            
+
         os.chdir(cwd)
 
         resd = self._moveImages(filesToDelete)
