@@ -177,7 +177,7 @@ def main(argv):
     # unfrozen
         dir_ = os.path.dirname(os.path.realpath(__file__))
         
-    tempdirectory = dir_ + "\\temp\\"
+    tempdirectory = dir_ + "\\temp\\"    
         
     if not os.path.exists(tempdirectory):
         os.makedirs(tempdirectory)

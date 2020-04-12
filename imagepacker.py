@@ -5,7 +5,6 @@ import shutil
 import os
 import time
 import glob
-from lockfile import LockFile
 from datetime import datetime as dt
 from os.path import basename
 from constants import EMPTY, ERROR
@@ -47,17 +46,22 @@ class ImagePacker():
     def _filebrowser(self, constellation="", dir="", ext=""):
         "Returns files with an extension"
         # debug
-        # print(f"{dir}{constellation}*{ext}")
-        return [f for f in glob.glob(dir+constellation+"*"+ext)]
+        # print(f"{dir}{constellation}*{ext}")        
+        file_template_name = os.path.join(dir, constellation + "_" + "*" +ext)
+        # debug
+        # print(file_template_name)
+        return [f for f in glob.glob(file_template_name)]
 
     # get files array, sort it by file time in file name
     # custom sort function
 
-    def _sortByNamePart(self, inputStr):
-        # Make date part of the string being our sort key
-        # TODO it's better to filter using basename of file
-        pos = inputStr.rfind("\\")
-        return inputStr[pos+6:-4]
+    def _sortByNamePart(self, inputFileName):
+        # Make date part of the string being our sort key        
+        filename = basename(inputFileName)
+        pos = filename.find("_")
+        # debug
+        # print(filename[pos+1:-4])
+        return filename[pos+1:-4]
 
     def _getImageFiles(self, curArea):
 
@@ -74,11 +78,13 @@ class ImagePacker():
         lastIndex = self.counter if len(newFiles) >= self.counter else 0
         for x in range(0, lastIndex):
             # debug
-            lock = LockFile(newFiles[x])
-            if lock.is_locked():
+            # print(newFilex[x])
+            access = os.access(newFiles[x], os.W_OK)
+            if not access:             
                 filesToArchive = []
                 filesToDelete = []
                 break
+                
             print(newFiles[x])
             filesToArchive.append(basename(newFiles[x]))
             filesToDelete.append(newFiles[x])
@@ -105,7 +111,7 @@ class ImagePacker():
         deletingError = False
         for f in range(0, len(files)):
             # if file already exists, do not move
-            if not os.path.isfile(self.processedDirectory + basename(files[f])):       
+            if not os.path.isfile(os.path.join(self.processedDirectory,basename(files[f]))):       
                 try:                
                     shutil.move(files[f], self.processedDirectory)
                 except OSError:
