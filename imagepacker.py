@@ -79,12 +79,20 @@ class ImagePacker():
         for x in range(0, lastIndex):
             # debug
             # print(newFilex[x])
-            access = os.access(newFiles[x], os.W_OK)
-            if not access:             
-                filesToArchive = []
-                filesToDelete = []
-                break
-                
+            #access = os.access(newFiles[x], os.W_OK)
+            #if not access:             
+            #    filesToArchive = []
+            #    filesToDelete = []
+            #    break
+            
+
+            #access = os.access(self.currentDirectory, os.F_OK)
+            #access = os.access(newFiles[x], os.F_OK)
+            #if not access:             
+            #   filesToArchive = []
+            #    filesToDelete = []
+            #    break
+            
             print(newFiles[x])
             filesToArchive.append(basename(newFiles[x]))
             filesToDelete.append(newFiles[x])

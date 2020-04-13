@@ -14,13 +14,12 @@ base = None
 executables = [Executable("astrocam.py", base=base)]
 
 packages = ["patool"]
-buildOptions = dict(excludes=["tkinter", "sqlite"], includes=[
-                    "idna.idnadata"], optimize=1)
+buildOptions = dict(excludes=["tkinter","sqlite"], includes=["idna.idnadata"],optimize=1)
 setup(
-    name=PROGRAM_NAME,
-    version=VERSION,
-    author=AUTHOR,
-    description="Astrocam utility program to pack and send astrophoto",
-    executables=executables,
-    options=dict(build_exe=buildOptions)
+    name = PROGRAM_NAME,
+    version = VERSION,
+    author = AUTHOR,
+    description = "Astrocam utility program to pack and send astrophoto",   
+    executables = executables,
+    options = dict(build_exe = buildOptions)
 )
