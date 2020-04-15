@@ -4,7 +4,7 @@ import patoolib.programs.rar
 import shutil
 import os
 import time
-import glob
+import re
 from datetime import datetime as dt
 from os.path import basename
 from constants import EMPTY, ERROR
@@ -45,16 +45,19 @@ class ImagePacker():
 
     def _filebrowser(self, constellation="", dir="", ext=""):
         "Returns files with an extension"
+        files = []
+        pattern = r"(^" + constellation + "(_|-SF_).*\\" + ext + ")"
         # debug
-        # print(f"{dir}{constellation}*{ext}")        
-        file_template_name = os.path.join(dir, constellation + "_" + "*" +ext)
-        # debug
-        # print(file_template_name)
-        return [f for f in glob.glob(file_template_name)]
+        # print(pattern)        
+        match = re.compile(pattern)
+        fileList =  [f for f in os.listdir(dir) if re.search(match, f)]
+        for f in fileList:
+            files.append(os.path.join(dir,f))
+
+        return files
 
     # get files array, sort it by file time in file name
     # custom sort function
-
     def _sortByNamePart(self, inputFileName):
         # Make date part of the string being our sort key        
         filename = basename(inputFileName)
@@ -67,7 +70,7 @@ class ImagePacker():
 
         files = self._filebrowser(
             curArea, self.currentDirectory, ".fts")
-        # for debug
+        # debug
         # print(files)
 
         # three first files from sorted list or less
@@ -93,6 +96,7 @@ class ImagePacker():
             #    filesToDelete = []
             #    break
             
+            # debug
             print(newFiles[x])
             filesToArchive.append(basename(newFiles[x]))
             filesToDelete.append(newFiles[x])
@@ -118,7 +122,7 @@ class ImagePacker():
         movingError = False
         deletingError = False
         for f in range(0, len(files)):
-            # if file already exists, do not move
+            # if file already exists, do not move, just delete
             if not os.path.isfile(os.path.join(self.processedDirectory,basename(files[f]))):       
                 try:                
                     shutil.move(files[f], self.processedDirectory)
