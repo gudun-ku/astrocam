@@ -30,7 +30,7 @@ def deleteFile(file):
         os.remove(file)
         return None
     except OSError:
-        print("Error deleting file: ", file)
+        print("!--> Error deleting file: ", file)
         return ERROR
 
 
@@ -50,22 +50,27 @@ def makeJobForArchive(archiveFile):
 
 
 def makeJobForArchives(tempDirectory):
-    archiveFiles = [f for f in glob.glob(tempDirectory+"*rar")]
+    packer = ImagePacker(tempDirectory=tempDirectory)
+    archiveFiles = packer.getArchiveFiles()
+    # debug
+    print(archiveFiles)
     for archiveFile in archiveFiles:
         print("found archive file: ", archiveFile)
         try:
             makeJobForArchive(archiveFile)
         except Exception as e:
-            exc = e
-            tb_str = traceback.format_exception(
-                etype=type(exc), value=exc, tb=exc.__traceback__)
-            print(tb_str)
+            # debug
+            # exc = e
+            # tb_str = traceback.format_exception(
+            #    etype=type(exc), value=exc, tb=exc.__traceback__)
+            # print(tb_str)
+            print("!--> Error sending archive file: ", archiveFile)
 
 def makeJobForArea(imagesDirectory, processedDirectory, area):
-    packer = ImagePacker(imagesDirectory,processedDirectory, area)
+    packer = ImagePacker(imagesDirectory=imagesDirectory,processedDirectory=processedDirectory, area=area)
     archiveFile = packer.packImagesForArea(area)
     if archiveFile == ERROR:
-        print("Error in archiving files!")
+        print("!--> Error in archiving files!")
         return
 
     if archiveFile == EMPTY:
@@ -75,23 +80,28 @@ def makeJobForArea(imagesDirectory, processedDirectory, area):
 
     # debug
     print("Prepared archive file: ", archiveFile)
-    makeJobForArchive(archiveFile)                
+    makeJobForArchive(archiveFile)
 
-# main loop for execution
-def programLoop(imagesDirectory, processedDirectory, tempDirectory, areas):
-    print("Checking temp folder ... ", time.ctime())
-    makeJobForArchives(tempDirectory)
-    print("Checking camera folder ... ", time.ctime())
+def makeJobForAreas(imagesDirectory, processedDirectory, areas):
     for area in areas:
         # debug
         # print(area)
         try:
             makeJobForArea(imagesDirectory,processedDirectory,area)
         except Exception as e:
-            exc = e
-            tb_str = traceback.format_exception(
-                etype=type(exc), value=exc, tb=exc.__traceback__)
-            print(tb_str)
+            # debug
+            # exc = e
+            # tb_str = traceback.format_exception(
+            #    etype=type(exc), value=exc, tb=exc.__traceback__)
+            # print(tb_str)
+            print("!--> Error processing area: ", area)
+
+# main loop for execution
+def programLoop(imagesDirectory, processedDirectory, tempDirectory, areas):
+    print("Checking temp folder ...   ", time.ctime())
+    makeJobForArchives(tempDirectory)
+    print("Checking camera folder ... ", time.ctime())
+    makeJobForAreas(imagesDirectory, processedDirectory, areas)  
 
 
 def signal_handler(signum, frame):
@@ -136,7 +146,7 @@ def main(argv):
                             processedDirectory)  # processed directory
 
     except Exception as e:
-        print('Error: config.env has wrong format!')
+        print('!--> Error: config.env has wrong format!')
         # debug
         # exc = e
         # tb_str = traceback.format_exception(

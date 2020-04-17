@@ -24,7 +24,7 @@ class FileUploader():
             self.server = ENV.get('SAI_SERVER', '')
 
         except Exception as e:
-            print('Error: config.env has wrong format!')
+            print('!--> Error: config.env has wrong format!')
 
         self.fileToUpload = fileToUpload
 
@@ -78,9 +78,11 @@ class FileUploader():
             return None
         else:
             # debug
-            print("Server response is: ", response.status_code, response.reason, response.text)
-            print("Server response headers are: ", response.headers)
-            print("Error in response: ", response)
+            # print("Server response is: ", response.status_code, response.reason, response.text)
+            # print("Server response headers are: ", response.headers)
+            # print("Error in response: ", response)
+            print("!--> Error in server response: ", response.status_code, response.reason)
+            
             return ERROR
 
     def uploadFile(self):

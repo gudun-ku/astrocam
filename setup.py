@@ -6,7 +6,7 @@ import imagepacker
 import fileuploader
 
 PROGRAM_NAME = "Astrocam utility"
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 AUTHOR = "Aleks Beloushkin gudun.ku@gmail.com"
 
 

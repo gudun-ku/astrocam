@@ -4,6 +4,7 @@ import patoolib.programs.rar
 import shutil
 import os
 import time
+import glob
 import re
 from datetime import datetime as dt
 from os.path import basename
@@ -12,8 +13,9 @@ from environ import Environ
 
 
 class ImagePacker():
+    archext = ".rar"
 
-    def __init__(self, imagesDirectory, processedDirectory, area):
+    def __init__(self, imagesDirectory="", processedDirectory="", area="", tempDirectory=""):
 
         self.counter = 3
         self.prefix = ''
@@ -26,7 +28,7 @@ class ImagePacker():
             self.postfix= ENV.get('SAI_POSTFIX', '')
             self.counter = int(ENV.get('SAI_COUNT', 3))
         except Exception as e:
-            print('Error: config.env has wrong format!')        
+            print('!--> Error: config.env has wrong format!')        
 
         # for freeze
         if getattr(sys, 'frozen', False):
@@ -36,7 +38,7 @@ class ImagePacker():
         # unfrozen
             dir_ = os.path.dirname(os.path.realpath(__file__))
             
-        self.tempDirectory = dir_ + "\\temp\\"
+        self.tempDirectory = dir_ + "\\temp\\" if tempDirectory == "" else tempDirectory
         self.currentDirectory = dir_ + "\\data\\" if imagesDirectory == "" else imagesDirectory
         self.processedDirectory = dir_ + "\\processed\\" if processedDirectory == "" else processedDirectory
     
@@ -66,8 +68,34 @@ class ImagePacker():
         # print(filename[pos+1:-4])
         return filename[pos+1:-4]
 
-    def _getImageFiles(self, curArea):
+    def _sortByArchiveName(self, archiveFileName):
+        filename = basename(archiveFileName)
+        pos = filename.rfind(self.archext)
+        filename = filename[:pos]        
+        if (self.postfix != ""):
+            pos = filename.rfind(self.postfix)
+            filename = filename[:pos]
 
+        # debug
+        # print(filename)                      
+        
+        pos = filename.find("_")
+        strdate = filename[:pos]
+        pos = filename.rfind("_")
+        strtime = filename[pos:]
+        criteria = (strdate+strtime).replace("-","").replace("_","")
+        # debug        
+        # print(criteria)
+        return criteria
+
+    def getArchiveFiles(self):
+        files = [f for f in glob.glob(self.tempDirectory+ "*" + self.archext)]
+        # debug
+        # print(files)
+        return sorted(files, key = self._sortByArchiveName)
+        
+
+    def _getImageFiles(self, curArea):
         files = self._filebrowser(
             curArea, self.currentDirectory, ".fts")
         # debug
@@ -110,7 +138,7 @@ class ImagePacker():
                 os.remove(files[f])
             except OSError:
                 deletingError = True
-                print("Error, can't delete file: ", files[f])
+                print("!--> Error, can't delete file: ", files[f])
                 pass
 
         if deletingError:
@@ -128,14 +156,14 @@ class ImagePacker():
                     shutil.move(files[f], self.processedDirectory)
                 except OSError:
                     movingError = True
-                    print("Error, can't move file: ", files[f])
+                    print("!--> Error, can't move file: ", files[f])
                     pass
             else:
                 try:
                     os.remove(files[f])
                 except OSError:
                     deletingError = True
-                    print("Error, can't delete file: ", files[f])
+                    print("!--> Error, can't delete file: ", files[f])
                     pass                
 
         if movingError or deletingError:
@@ -155,7 +183,7 @@ class ImagePacker():
         
         archiveFileName = self.tempDirectory  + \
             dt.now().strftime("%Y-%m-%d") + "_" + self.prefix + area + "_" + \
-            dt.now().strftime("%H%M%S") + self.postfix + ".rar"
+            dt.now().strftime("%H%M%S") + self.postfix + self.archext
         
         patoolib.create_archive(archiveFileName, files, verbosity=1)
         resp = patoolib.test_archive(archiveFileName, verbosity=1)
